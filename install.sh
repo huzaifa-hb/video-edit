@@ -4,11 +4,15 @@
 #   curl -fsSL https://raw.githubusercontent.com/huzaifa-hb/video-edit/main/install.sh | bash
 #
 # Env:
-#   VIDEO_EDIT_DIR   where to install (default ~/.claude/skills/video-edit)
+#   VIDEO_EDIT_DIR          where to install (default ~/.claude/skills/video-edit)
+#   VIDEO_EDIT_BACKUP_DIR   where a non-git copy already at VIDEO_EDIT_DIR is moved
+#                           (default ~/.claude/backups — kept out of skills/, where a
+#                           backup copy would load as a duplicate skill)
 set -euo pipefail
 
 REPO="https://github.com/huzaifa-hb/video-edit.git"
 DEST="${VIDEO_EDIT_DIR:-$HOME/.claude/skills/video-edit}"
+BACKUP_DIR="${VIDEO_EDIT_BACKUP_DIR:-$HOME/.claude/backups}"
 
 command -v git >/dev/null || { echo "git is required (macOS: xcode-select --install)"; exit 1; }
 
@@ -17,7 +21,8 @@ if [ -d "$DEST/.git" ]; then
   git -C "$DEST" pull --ff-only
 else
   if [ -e "$DEST" ]; then
-    backup="$DEST.bak.$(date +%Y%m%d%H%M%S)"
+    mkdir -p "$BACKUP_DIR"
+    backup="$BACKUP_DIR/$(basename "$DEST").$(date +%Y%m%d%H%M%S)"
     echo "moving existing $DEST to $backup"
     mv "$DEST" "$backup"
   fi
