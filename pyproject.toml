@@ -1,0 +1,22 @@
+[project]
+name = "video-edit"
+version = "0.2.0"
+description = "Local, conversation-driven video editor skill for Claude Code (fork of browser-use/video-use)"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pillow",
+    "opencv-python-headless",
+]
+
+[project.optional-dependencies]
+animations = ["manim"]
+test = ["pytest"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = []

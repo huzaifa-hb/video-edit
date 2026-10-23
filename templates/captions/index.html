@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=__WIDTH__, height=__HEIGHT__" />
+    <script src="gsap.min.js"></script>
+    <style>
+      html, body { margin: 0; background: transparent; }
+      #root {
+        position: relative;
+        width: __WIDTH__px;
+        height: __HEIGHT__px;
+        overflow: hidden;
+        background: transparent;
+      }
+      .group {
+        position: absolute;
+        left: 6%;
+        right: 6%;
+        top: __TOP__%;
+        transform: translateY(-50%);
+        text-align: center;
+        opacity: 0;
+        font-family: __FONT__;
+        font-weight: 900;
+        font-size: __SIZE__px;
+        line-height: 1.08;
+        letter-spacing: -0.01em;
+        text-transform: __CASE__;
+        color: __COLOR__;
+        -webkit-text-stroke: __STROKE__px #000;
+        paint-order: stroke fill;
+        text-shadow: 0 __SHADOW__px __SHADOWBLUR__px rgba(0, 0, 0, 0.55);
+      }
+      .word { display: inline-block; margin: 0 0.12em; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="captions"
+      data-start="0"
+      data-duration="__DURATION__"
+      data-width="__WIDTH__"
+      data-height="__HEIGHT__"
+    ></div>
+
+    <script>
+      // Cue groups on the OUTPUT timeline, written by helpers/captions.py.
+      var GROUPS = __GROUPS__;
+      var ACCENT = "__ACCENT__";
+      var BASE = "__COLOR__";
+      var POP = __POP__;
+
+      var root = document.getElementById("root");
+      GROUPS.forEach(function (g, gi) {
+        var el = document.createElement("div");
+        el.className = "group";
+        el.id = "g" + gi;
+        g.words.forEach(function (w, wi) {
+          var span = document.createElement("span");
+          span.className = "word";
+          span.id = "g" + gi + "w" + wi;
+          span.textContent = w.text;
+          el.appendChild(span);
+        });
+        root.appendChild(el);
+      });
+
+      var tl = gsap.timeline({ paused: true });
+      GROUPS.forEach(function (g, gi) {
+        var el = "#g" + gi;
+        tl.set(el, { opacity: 1 }, g.start);
+        if (POP) {
+          tl.fromTo(el, { scale: 0.86 }, { scale: 1, duration: 0.14, ease: "back.out(3)" }, g.start);
+        }
+        tl.set(el, { opacity: 0 }, g.end);
+        g.words.forEach(function (w, wi) {
+          var id = "#g" + gi + "w" + wi;
+          tl.set(id, { color: BASE }, g.start);
+          tl.set(id, { color: ACCENT }, Math.max(g.start, w.start));
+        });
+      });
+      // Pin the timeline length to the composition so the last cue clears.
+      tl.set({}, {}, __DURATION__);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines.captions = tl;
+    </script>
+  </body>
+</html>
